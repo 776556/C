@@ -59,11 +59,11 @@ namespace Bento_system
             selectprm();
             //return l;
         }
-          private void set_selectData(){
-              comboBox1.DataSource = selectBentoData();//selectData();
-              comboBox1.DisplayMember = "bentoName";
-              comboBox1.ValueMember = "bentoName";
-        }
+        //  private void set_selectData(){
+        //      comboBox1.DataSource = selectBentoData();//selectData();
+        //      comboBox1.DisplayMember = "bentoName";
+        //      comboBox1.ValueMember = "bentoName";
+        //}
           string temp_comboBox1 = "";
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -86,15 +86,23 @@ namespace Bento_system
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            if (textBox1.Text != "")
-            {
-                int a = int.Parse(textBox1.Text);
-                int b = int.Parse(label5.Text);
-                label10.Text = (a * b).ToString();
+            try {
+                if (textBox1.Text != "")
+                {
+                    int a = int.Parse(textBox1.Text);
+                    int b = int.Parse(label5.Text);
+                    label10.Text = (a * b).ToString();
+                }
+                else
+                {
+                    label10.Text = "0";
+                }
             }
-            else {
-                label10.Text = "0";
+            catch (Exception eq) {
+                msg("訂購數量請輸入數字");
+                textBox1.Text = "";
             }
+           
             
         }
 
@@ -113,23 +121,34 @@ namespace Bento_system
             uplistBoxData();
             uplistBoxDisplayData();
         }
+        private void comboBox_setup()
+        {
+            comboBox1.DataSource = null;
+            comboBox1.DataSource = newmenu;// selectBentoData();//selectData();
+            comboBox1.DisplayMember = "bentoName";
+            comboBox1.ValueMember = "bentoName";
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             try {
-                String bentoName = textBox2.Text;//便當名稱
+                 String bentoName = textBox2.Text;//便當名稱
+                if (bentoName ==""){
+                    msg("請輸入便當名稱");
+                    return;
+                }
+               
                 int price = int.Parse(textBox3.Text);//便當單價
                 newmenu.Add(new Menu() { bentoName = bentoName, bentoPrice = price });
-                comboBox1.DataSource = null;
-                comboBox1.DataSource = newmenu;// selectBentoData();//selectData();
-                comboBox1.DisplayMember = "bentoName";
-                comboBox1.ValueMember = "bentoName";
+                comboBox_setup();
                 listBoxp_setup();
                 textBox2.Text = "";
                 textBox3.Text = "";
                 textBox2.Focus();
             }
             catch (Exception eq) {
-                msg("");
+                textBox3.Text = "";
+                msg("請輸入便當價錢!");
             }
            
         }
@@ -141,7 +160,7 @@ namespace Bento_system
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            
         }
         private void setPrice() {
             if (comboBox1.Text.ToString() != "")
@@ -158,8 +177,24 @@ namespace Bento_system
         {
            // Menu s = newmenu.Find(x => x.bentoName.Contains("11"));//搜尋
            // MessageBox.Show(s.bentoName.ToString()+"  "+s.bentoPrice.ToString());
-            dataGridView1.Rows[2].Cells[0].Value = "123";
-           
+           // dataGridView1.Rows[2].Cells[0].Value = "123";
+            //Menu s = newmenu.Find(x => x.bentoName.Contains("排骨飯"));//搜尋
+
+            //MessageBox.Show(s.bentoName);
+            //listBox1.= "bentoName";
+            //listBox1.SelectedValue = "雞腿飯";
+            //listBox1.SelectedItem.Text;
+            //listBox1.Items.Remove("雞腿飯");
+            //comboBox1.DataSource = null;
+            //comboBox1.DataSource = newmenu;// selectBentoData();//selectData();
+            //comboBox1.DisplayMember = "bentoName";
+            //comboBox1.ValueMember = "bentoName";
+            //MessageBox.Show(((Menu)listBox1.SelectedItem).bentoName);
+            //comboBox_setup();
+           // comboBox1.SelectedIndex = 0;
+            Menu s = l.Find(x => x.bentoName.Contains(comboBox1.Text));//搜尋
+           // MessageBox.Show(s.ToString());
+          
         }
 
         private void label5_Click(object sender, EventArgs e)
@@ -189,10 +224,31 @@ namespace Bento_system
         {
             //listBox2.Items.Add(comboBox1.Text + "   " + label5.Text + "元 *" + textBox1.Text + " =" + label10.Text);
           //  listBox2.Items.Add("44"); 
-            l.Add(new Menu() { bentoName = comboBox1.Text, bentoPrice = int.Parse(label5.Text), OrderQty = int.Parse(textBox1.Text), TPrice = int.Parse(label10.Text) });
-          
-            upDataGridView();
-            setDataGridViewHeaderText();
+            //if (textBox1.Text != "")
+            //{              
+                try {
+                    Menu s = l.Find(x => x.bentoName.Contains(comboBox1.Text));//搜尋
+                    if(null==s){
+                        
+                        l.Add(new Menu() { bentoName = comboBox1.Text, bentoPrice = int.Parse(label5.Text), OrderQty = int.Parse(textBox1.Text), TPrice = int.Parse(label10.Text) });
+                      
+                    }else{
+                        
+                        s.OrderQty=s.OrderQty+int.Parse(textBox1.Text);
+                        s.TPrice = s.TPrice + int.Parse(label10.Text);
+                    }
+                    upDataGridView();
+                    setDataGridViewHeaderText();
+                }
+                catch (Exception eq) {
+                    msg("請輸入訂購數量");
+                }
+           // }
+          //  else {
+                //MessageBox.Show();
+             //   msg("請輸入訂購數量");
+            //}
+           
             
         }
         int RowIndex;
@@ -233,25 +289,70 @@ namespace Bento_system
             
             comboBox1.Text = l[RowIndex].bentoName.ToString();
             textBox1.Text = l[RowIndex].OrderQty.ToString();
+            button5.Text = "修改[" + comboBox1.Text + "]數量";
+            button5.Enabled = true;
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            //只能修改訂單數量
-            l[RowIndex].OrderQty = int.Parse(textBox1.Text);
-            l[RowIndex].TPrice = int.Parse(label10.Text);
+            
             //MessageBox.Show(l[1].bentoName.ToString());
             //MessageBox.Show(l[1].bentoPrice.ToString());
             //MessageBox.Show(l[1].OrderQty.ToString());
             //MessageBox.Show(l[1].TPrice.ToString());
            // l[1].bentoName = "qqqqq";
-            upDataGridView();
-            setDataGridViewHeaderText();
+            
+            try {
+                //只能修改訂單數量
+                l[RowIndex].OrderQty = int.Parse(textBox1.Text);
+                l[RowIndex].TPrice = int.Parse(label10.Text);
+                upDataGridView();
+                setDataGridViewHeaderText();
+            }
+            catch (Exception eq) {
+                msg("請先加入訂單");
+            }
         }
 
         private void textBox3_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void listBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+        int listBoxRemoveIndex;
+        private void listBox1_MouseClick(object sender, MouseEventArgs e)
+        {
+            comboBox_setup();
+            listBoxRemoveIndex = listBox1.IndexFromPoint(e.X, e.Y);
+           // MessageBox.Show(listBoxRemoveIndex.ToString());
+            //MessageBox.Show("");
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            //listBox1.Items.RemoveAt(listBoxRemoveIndex);
+            try {
+               // String lb_bentoName = ((Menu)listBox1.SelectedItem).bentoName;
+                //刪除listBox項目
+                newmenu.RemoveAt(listBoxRemoveIndex);
+                //更新listBox項目  
+                listBoxp_setup();
+                //更新comboBox1項目  
+                 comboBox_setup();
+                 comboBox1.SelectedIndex = 0;
+               // listBox1.Items.Remove(lb_bentoName);
+            }
+            catch (Exception eq) {
+                msg(eq.ToString());
+                //msg("請選擇菜單");
+            }
+
+           // comboBox1.Items.Remove();
+            
         }
 
     }
